@@ -8,8 +8,9 @@ import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import io.swagger.parser.SwaggerParser;
-import io.swagger.parser.util.SwaggerDeserializationResult;
+
+import io.swagger.parser.models.SwaggerParseResult;
+import io.swagger.parser.v3.OpenAPIV3Parser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
 import io.swagger.validator.models.SchemaValidationError;
@@ -159,7 +160,7 @@ public class ValidatorService {
         }
 
         // use the swagger deserializer to get human-friendly messages
-        SwaggerDeserializationResult result = readSwagger(content);
+        SwaggerParseResult result = readSwagger(content);
         if(result != null) {
             for(String message : result.getMessages()) {
                 output.addMessage(message);
@@ -212,7 +213,7 @@ public class ValidatorService {
         }
 
         // use the swagger deserializer to get human-friendly messages
-        SwaggerDeserializationResult result = readSwagger(content);
+        SwaggerParseResult result = readSwagger(content);
         if(result != null) {
             for(String message : result.getMessages()) {
                 output.addMessage(message);
@@ -366,9 +367,9 @@ public class ValidatorService {
         return ipAddress;
     }
 
-    private SwaggerDeserializationResult readSwagger(String content) throws IllegalArgumentException {
-        SwaggerParser parser = new SwaggerParser();
-        return parser.readWithInfo(content);
+    private SwaggerParseResult readSwagger(String content) throws IllegalArgumentException {
+        OpenAPIV3Parser parser = new OpenAPIV3Parser();
+        return parser.readWithInfo(content,null);
     }
 
     private JsonNode readNode(String text) {
