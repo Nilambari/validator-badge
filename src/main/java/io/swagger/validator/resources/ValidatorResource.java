@@ -2,6 +2,8 @@ package io.swagger.validator.resources;
 
 import io.swagger.oas.annotations.Operation;
 import io.swagger.oas.annotations.Parameter;
+import io.swagger.oas.annotations.media.Content;
+import io.swagger.oas.annotations.media.Schema;
 import io.swagger.oas.annotations.responses.ApiResponse;
 import io.swagger.validator.models.ValidationResponse;
 import io.swagger.validator.services.ValidatorService;
@@ -37,8 +39,10 @@ public class ValidatorResource {
     @Path("/debug")
     @Produces({"application/json"})
     @Operation(summary = "Validates a spec based on a URL",
-            responses = ValidationResponse.class
-            responseContainer = "List")
+            responses = {
+                    @ApiResponse(description = "Pets matching criteria",
+                        content = @Content(schema = @Schema(implementation = ValidationResponse.class))
+            )})
     @ApiResponse(content = {})
     public Response debugByUrl(
             @Context HttpServletRequest request,
@@ -56,8 +60,10 @@ public class ValidatorResource {
     @Path("/debug")
     @Produces({"application/json"})
     @Operation(summary = "Validates a spec based on message body",
-            responses = {}//ValidationResponse.class
-            /*responseContainer = "List"*/)
+            responses = {
+                    @ApiResponse(description = "Pets matching criteria",
+                            content = @Content(schema = @Schema(implementation = ValidationResponse.class))
+                    )})
     @ApiResponse(content = {})
     public Response debugByContent(
             @Context HttpServletRequest request,
