@@ -47,7 +47,7 @@ import java.security.cert.X509Certificate;
 public class ValidatorService {
     static final String INVALID_VERSION = "Deprecated Swagger version.  Please visit http://swagger.io for information on upgrading to Swagger 2.0\"";
     static final String SCHEMA_FILE = "schema3.json";
-    static final String SCHEMA_URL = "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/oas3-schema/schemas/v3.0/schema.yaml";
+    static final String SCHEMA_URL = "https://raw.githubusercontent.com/swagger-api/validator-badge/validator-rc2/src/main/resources/schema3.json";
 
     static Logger LOGGER = LoggerFactory.getLogger(ValidatorService.class);
     static long LAST_FETCH = 0;
