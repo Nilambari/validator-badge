@@ -9,7 +9,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>io.swagger.jaxrs.json;io.swagger.validator.resources;io.swagger.validator.util</param-value>
+            <param-value>io.swagger.jaxrs2.json;io.swagger.validator.resources;io.swagger.validator.util</param-value>
         </init-param>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
@@ -30,8 +30,8 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <servlet>
-        <servlet-name>DefaultJaxrsConfig</servlet-name>
-        <servlet-class>io.swagger.jaxrs.config.DefaultJaxrsConfig</servlet-class>
+        <servlet-name>OpenApi</servlet-name>
+        <servlet-class>io.swagger.jaxrs2.integration.OpenApiServlet</servlet-class>
         <init-param>
             <param-name>api.version</param-name>
             <param-value>1.0.0</param-value>
