@@ -9,7 +9,9 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
+import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.models.SwaggerParseResult;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.parser.v3.OpenAPIV3Parser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
@@ -48,6 +50,8 @@ public class ValidatorService {
     static final String INVALID_VERSION = "Deprecated Swagger version.  Please visit http://swagger.io for information on upgrading to Swagger 2.0\"";
     static final String SCHEMA_FILE = "schema3.json";
     static final String SCHEMA_URL = "https://raw.githubusercontent.com/swagger-api/validator-badge/validator-rc2/src/main/resources/schema3.json";
+    static final String SCHEMA2_FILE = "schema.json";
+    static final String SCHEMA2_URL = "http://swagger.io/v2/schema.json";
 
     static Logger LOGGER = LoggerFactory.getLogger(ValidatorService.class);
     static long LAST_FETCH = 0;
@@ -55,6 +59,8 @@ public class ValidatorService {
     static ObjectMapper JsonMapper = Json.mapper();
     static ObjectMapper YamlMapper = Yaml.mapper();
     private JsonSchema schema;
+    static String specVersion = "";
+
 
     public void validateByUrl(HttpServletRequest request, HttpServletResponse response, String url) {
         LOGGER.info("validationUrl: " + url + ", forClient: " + getRemoteAddr(request));
@@ -103,8 +109,19 @@ public class ValidatorService {
         if (node == null) {
             return null;
         }
-        JsonNode version = node.get("openapi");
+        JsonNode version = node.get("swagger");
         if (version != null) {
+            specVersion = "2.0";
+            return version.toString();
+        }
+        version = node.get("swaggerVersion");
+        if (version != null) {
+            specVersion = "2.0";
+            return version.toString();
+        }
+        version = node.get("openapi");
+        if (version != null) {
+            specVersion = "3.0";
             return version.toString();
         }
         LOGGER.debug("version not found!");
@@ -135,7 +152,7 @@ public class ValidatorService {
         }
 
         // convert to a JsonNode
-        JsonNode schemaObject = JsonMapper.readTree(getSchema());
+
         JsonNode spec = readNode(content);
         if (spec == null) {
             ProcessingMessage pm = new ProcessingMessage();
@@ -156,14 +173,23 @@ public class ValidatorService {
         }
 
         // use the swagger deserializer to get human-friendly messages
-        SwaggerParseResult result = readSwagger(content);
-        if(result != null) {
-            for(String message : result.getMessages()) {
-                output.addMessage(message);
+        if (specVersion.equals("3.0")){
+            SwaggerParseResult result = readOpenApi(content);
+            if(result != null) {
+                for(String message : result.getMessages()) {
+                    output.addMessage(message);
+                }
+            }
+        }else if (specVersion.equals("2.0")) {
+            SwaggerDeserializationResult result = readSwagger(content);
+            if (result != null) {
+                for (String message : result.getMessages()) {
+                    output.addMessage(message);
+                }
             }
         }
-
         // do actual JSON schema validation
+        JsonNode schemaObject = JsonMapper.readTree(getSchema());
         JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
         JsonSchema schema = factory.getJsonSchema(schemaObject);
         ProcessingReport report = schema.validate(spec);
@@ -193,9 +219,7 @@ public class ValidatorService {
     }
 
     public ValidationResponse debugByContent(HttpServletRequest request, HttpServletResponse response, String content) throws Exception {
-        JsonNode schemaObject = JsonMapper.readTree(getSchema());
-        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-        JsonSchema schema = factory.getJsonSchema(schemaObject);
+
         ValidationResponse output = new ValidationResponse();
 
         JsonNode spec = readNode(content);
@@ -208,11 +232,35 @@ public class ValidatorService {
             return output;
         }
 
+        String version = getVersion(spec);
+        if (version != null && version.startsWith("\"1.")) {
+            ProcessingMessage pm = new ProcessingMessage();
+            pm.setLogLevel(LogLevel.ERROR);
+            pm.setMessage(INVALID_VERSION);
+            output.addValidationMessage(new SchemaValidationError(pm.asJson()));
+            return output;
+        }
+
+        JsonNode schemaObject = JsonMapper.readTree(getSchema());
+        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+        JsonSchema schema = factory.getJsonSchema(schemaObject);
+
+
+
         // use the swagger deserializer to get human-friendly messages
-        SwaggerParseResult result = readSwagger(content);
-        if(result != null) {
-            for(String message : result.getMessages()) {
-                output.addMessage(message);
+        if (specVersion.equals("3.0")){
+            SwaggerParseResult result = readOpenApi(content);
+            if(result != null) {
+                for(String message : result.getMessages()) {
+                    output.addMessage(message);
+                }
+            }
+        }else if (specVersion.equals("2.0")) {
+            SwaggerDeserializationResult result = readSwagger(content);
+            if (result != null) {
+                for (String message : result.getMessages()) {
+                    output.addMessage(message);
+                }
             }
         }
 
@@ -272,17 +320,27 @@ public class ValidatorService {
     }
 
     private String getSchema() throws Exception {
-        if (CACHED_SCHEMA != null && (System.currentTimeMillis() - LAST_FETCH) < 600000) {
+        /*if (CACHED_SCHEMA != null && (System.currentTimeMillis() - LAST_FETCH) < 600000) {
             return CACHED_SCHEMA;
-        }
+        }*/
         try {
             LOGGER.debug("returning cached schema");
             LAST_FETCH = System.currentTimeMillis();
-            CACHED_SCHEMA = getUrlContents(SCHEMA_URL);
+            if (specVersion.equals("3.0")) {
+                CACHED_SCHEMA = getUrlContents(SCHEMA_URL);
+            }else if (specVersion.equals("2.0")) {
+                CACHED_SCHEMA = getUrlContents(SCHEMA2_URL);
+            }
             return CACHED_SCHEMA;
         } catch (Exception e) {
             LOGGER.warn("fetching schema from GitHub");
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream(SCHEMA_FILE);
+            InputStream is = null;
+            if (specVersion.equals("3.0")) {
+                is = this.getClass().getClassLoader().getResourceAsStream(SCHEMA_FILE);
+            }else if (specVersion.equals("2.0")) {
+                is = this.getClass().getClassLoader().getResourceAsStream(SCHEMA2_FILE);
+            }
+
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(is));
 
@@ -363,9 +421,15 @@ public class ValidatorService {
         return ipAddress;
     }
 
-    private SwaggerParseResult readSwagger(String content) throws IllegalArgumentException {
+    private SwaggerParseResult readOpenApi(String content) throws IllegalArgumentException {
         OpenAPIV3Parser parser = new OpenAPIV3Parser();
-        return parser.readContents(content,null,null);
+        return parser.readContents(content, null, null);
+
+    }
+
+    private SwaggerDeserializationResult readSwagger(String content) throws IllegalArgumentException {
+        SwaggerParser parser = new SwaggerParser();
+        return parser.readWithInfo(content);
     }
 
     private JsonNode readNode(String text) {
