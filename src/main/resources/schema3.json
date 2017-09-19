@@ -57,7 +57,7 @@
       "properties": {
         "$ref": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         }
       }
     },
@@ -76,7 +76,7 @@
         },
         "termsOfService": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "contact": {
           "$ref": "#/definitions/Contact"
@@ -102,7 +102,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "email": {
           "type": "string",
@@ -126,7 +126,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         }
       },
       "patternProperties": {
@@ -729,7 +729,7 @@
         },
         "externalValue": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         }
       },
       "patternProperties": {
@@ -1154,7 +1154,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uriref"
+          "format": "uri"
         }
       },
       "patternProperties": {
@@ -2147,11 +2147,11 @@
       "properties": {
         "authorizationUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "refreshUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "scopes": {
           "type": "object",
@@ -2174,11 +2174,11 @@
       "properties": {
         "tokenUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "refreshUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "scopes": {
           "type": "object",
@@ -2201,11 +2201,11 @@
       "properties": {
         "tokenUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "refreshUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "scopes": {
           "type": "object",
@@ -2229,15 +2229,15 @@
       "properties": {
         "authorizationUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "tokenUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "refreshUrl": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "scopes": {
           "type": "object",
@@ -2267,7 +2267,7 @@
       "properties": {
         "operationRef": {
           "type": "string",
-          "format": "uri-reference"
+          "format": "uri"
         },
         "parameters": {
           "type": "object",
