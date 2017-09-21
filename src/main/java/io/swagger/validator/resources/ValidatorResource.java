@@ -6,7 +6,7 @@ import io.swagger.oas.annotations.media.Content;
 import io.swagger.oas.annotations.media.Schema;
 import io.swagger.oas.annotations.responses.ApiResponse;
 import io.swagger.validator.models.ValidationResponse;
-import io.swagger.validator.services.ValidatorService;
+import io.swagger.validator.Controller.ValidatorService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

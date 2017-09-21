@@ -1,4 +1,4 @@
-package io.swagger.validator.services;
+package io.swagger.validator.Controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
